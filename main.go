@@ -14,7 +14,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func main() {
@@ -25,14 +24,6 @@ func main() {
 	//-------JOBS RESTARTS SYSTEM
 	go func() {
 		system.RunJobsRestartCuota()
-	}()
-	//-------JOBS to block and unblock users
-	go func() {
-		system.UnBlockLast()
-		for {
-			system.UnBlock()
-			time.Sleep(10 * time.Second)
-		}
 	}()
 	//-------Inject log reading job
 	go func() {

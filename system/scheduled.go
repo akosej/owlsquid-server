@@ -66,11 +66,7 @@ func RunJobsRestartCuota() {
 			cutName := strings.Split(ctn.String(), " ")
 			cutName2 := strings.Split(cutName[1], ".")
 			_, _ = copyFile(OwlAccesslog, OwlFolderLogs+"/access_"+cutName[0]+"_"+cutName2[0]+".log")
-			//Run("touch " + OwlFolderAcls + "/owl_acl_user_denied")
-			//Run("chmod -R 777 " + OwlFolderAcls + "/owl_acl_user_denied")
-			ResetFile(OwlAccesslog)
-			ResetFile(OwlFolderAcls + "/owl_acl_user_denied")
-
+			_, _ = RunString("echo '' >" + OwlAccesslog)
 			AllKeyRedis()
 			for _, user := range AllUser {
 				if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
@@ -82,9 +78,6 @@ func RunJobsRestartCuota() {
 					fmt.Println(err)
 				}
 			}
-
-			//--Reload Squid
-			_, _ = RunString("/etc/init.d/squid reload")
 			fmt.Println("Scheduled task executed, user quota has been reset ")
 			//--Restart order
 			addJobs(ctn, ctn.Hour(), ctn.Minute(), ctn.Second())

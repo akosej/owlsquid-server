@@ -18,31 +18,21 @@ default.quota=52428800
 #-- Interface server
 interface.server=eth0
 
-#--Folder acls
-folder.owl_acls=./owl_acls
+#--Folder salva logs
 folder.salva_logs=./salva_logs
-
-#------------------------CONNECT TYPE (redis o mysql)---------------------
-server.DB.Type=redis
-
+#------------------------------------------
 #--Ipaddress server (REDIS | MYSQL)
 ip.db=127.0.0.1
 
-#--Username (MYSQL)
-user.db=root
-
-#--Password (REDIS | MYSQL)
+#--Password
 pass.db=test
 
-#--Port server mysql:3306 redis:6379
+#--Port server redis:6379
 port.db=6379
 
-#--Name DB
-name.db=owl (MYSQL)
-
 #------------------------------------------
-restart.order=/etc/init.d/squid reload
+squid.port=3128
 
 #-------Hours in which the system will restart the quota and rotate the logs  ---------------
-jobs.restart=08:00:00 10:00:00 11:00:00 11:30:00 12:00:00 13:00:00 14:00:00 15:00:00 16:51:00 18:00:00 19:00:00
+jobs.restart=08:00:00 10:00:00 11:00:00 11:30:00 12:00:00 13:00:00 14:00:00 15:00:00 16:00:00
 

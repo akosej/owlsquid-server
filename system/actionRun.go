@@ -12,12 +12,9 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 	if err := RDB.HGetAll(CTX, userLog).Scan(&user); err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(user.Bloquear)
 	if user.Bloquear == true {
-		_, _ = RunString("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port 3128 > /dev/null 2>&1 &")
+		_, _ = RunString("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port " + OwlPortSquid + " > /dev/null 2>&1 &")
 		fmt.Println("Kill request: " + urlLog + "  User: " + userLog + " from ip:" + ipRemote)
-		//--Reload Squid
-		_, _ = RunString("/etc/init.d/squid reload")
 	} else {
 		if user.Email == "" {
 			bytesQuotaDefault, _ := strconv.ParseFloat(OwlQuotaDefault, 10)
@@ -66,10 +63,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 				fmt.Println("User " + userLog + " lock -> send kill request")
 				return true, "Kill request " + userLog
 			}
-
 		}
-
 	}
-
 	return false, "No new entries"
 }

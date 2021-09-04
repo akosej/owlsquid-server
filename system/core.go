@@ -25,19 +25,10 @@ func CheckFiles() {
 	if os.IsNotExist(err2) {
 		Run("mkdir " + OwlFolderLogs)
 	}
-	_, err3 := File2lines(OwlFolderAcls + "/owl_acl_user_denied")
-	if err3 != nil {
-		//Run("touch " + OwlFolderAcls + "/owl_acl_user_denied")
-		//Run("chmod -R 777 " + OwlFolderAcls + "/owl_acl_user_denied")
-		createFile(OwlFolderAcls + "/owl_acl_user_denied")
-		_, _ = RunString("chmod -R 777 " + OwlFolderAcls + "/owl_acl_user_denied")
-	}
 	_, err4 := File2lines(OwlAccesslog)
 	if err4 != nil {
 		createFile(OwlAccesslog)
 		_, _ = RunString("chmod -R 777 " + OwlAccesslog)
-		//Run("touch " + OwlAccesslog)
-		//Run("chmod -R 777 " + OwlAccesslog)
 	}
 }
 

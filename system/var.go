@@ -13,14 +13,13 @@ var (
 	OwlQuotaDefault = Config("default.quota")
 	OwlAccesslog    = Config("path.AccessLog")
 	OwlRestart      = Config("jobs.restart")
+	OwlPortSquid    = Config("squid.port")
 
 	// Connects -----JOBS
-	Connects       []string
-	JobCheckUser   = make(chan string)
-	ConnectType    = []string{"TCP_MISS/200", "TCP_TUNNEL/200"}
-	Jobs           []JobTicker
-	JobsEnd        []string
-	UsersBlockLast []string
-	UsersBlock     []string
-	AllUser        []string
+	Connects     []string
+	JobCheckUser = make(chan string)
+	ConnectType  = []string{"TCP_MISS/200", "TCP_TUNNEL/200"}
+	Jobs         []JobTicker
+	JobsEnd      []string
+	AllUser      []string
 )
