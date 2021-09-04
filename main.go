@@ -20,17 +20,13 @@ import (
 func main() {
 	//-------Check that the necessary files exist
 	system.CheckFiles()
-	//-------------- CREATE TABLES DB
-	if system.OwlServerDBType == "redis" {
-		system.ConnectRedis()
-	} else {
-		system.ConnectMysql()
-	}
-	//-------------- JOBS RESTARTS SYSTEM
+	//-------Connect to the redis server
+	system.ConnectServerRedis()
+	//-------JOBS RESTARTS SYSTEM
 	go func() {
 		system.RunJobsRestartCuota()
 	}()
-	//-------------- JOBS to block and unblock users
+	//-------JOBS to block and unblock users
 	go func() {
 		system.UnBlockLast()
 		for {
@@ -38,7 +34,7 @@ func main() {
 			time.Sleep(10 * time.Second)
 		}
 	}()
-	//-------------- Inject log reading job
+	//-------Inject log reading job
 	go func() {
 		for {
 			select {
@@ -50,10 +46,10 @@ func main() {
 			}
 		}
 	}()
-
+	//-------Read real-time access.log from squid
 	t, _ := tail.TailFile(system.OwlAccesslog, tail.Config{Follow: true})
 
-	sort.Strings(system.ConnecType)
+	sort.Strings(system.ConnectType)
 
 	for line := range t.Lines {
 		//time duration client_address result_code bytes request_method url rfc931 hierarchy_code type
@@ -62,12 +58,12 @@ func main() {
 		//-- extract date data
 		extractDateData := strings.Split(segment[0], ".")
 		secondOfDifferences := system.SubtractDates(extractDateData[0])
-
+		//-- If the log entry was executed in less than 10 seconds
 		if secondOfDifferences < 10 {
 			//--If it contains an @ it means that there is a user
 			if strings.Contains(segment[7], "@") {
 				//--Check the connection type from the connectType list
-				if system.Contains(system.ConnecType, segment[3]) {
+				if system.Contains(system.ConnectType, segment[3]) {
 					//--If the request size is> 0
 					if segment[4] > "0" {
 						// -- Send request data to be processed in the job

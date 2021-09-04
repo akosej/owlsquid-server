@@ -66,36 +66,25 @@ func RunJobsRestartCuota() {
 			cutName := strings.Split(ctn.String(), " ")
 			cutName2 := strings.Split(cutName[1], ".")
 			_, _ = copyFile(OwlAccesslog, OwlFolderLogs+"/access_"+cutName[0]+"_"+cutName2[0]+".log")
+			//Run("touch " + OwlFolderAcls + "/owl_acl_user_denied")
+			//Run("chmod -R 777 " + OwlFolderAcls + "/owl_acl_user_denied")
 			ResetFile(OwlAccesslog)
 			ResetFile(OwlFolderAcls + "/owl_acl_user_denied")
-			if OwlServerDBType == "redis" {
-				AllKeyRedis()
-				for _, user := range AllUser {
-					if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
-						rdb.HSet(CTX, user, "used", 0)
-						rdb.HSet(CTX, user, "activa", 1)
-						rdb.HSet(CTX, user, "bloquear", 0)
-						return nil
-					}); err != nil {
-						fmt.Println(err)
-					}
-				}
-			} else {
-				//------------MYSQL
-				var users []NavigationUsers
-				DB.Find(&users)
-				for _, user := range users {
-					var us NavigationUsers
-					DB.Where("ID = ?", user.ID).Find(&us)
-					us.Used = 0
-					us.Activa = true
-					us.Bloquear = false
-					DB.Save(us)
+
+			AllKeyRedis()
+			for _, user := range AllUser {
+				if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
+					rdb.HSet(CTX, user, "used", 0)
+					rdb.HSet(CTX, user, "activa", 1)
+					rdb.HSet(CTX, user, "bloquear", 0)
+					return nil
+				}); err != nil {
+					fmt.Println(err)
 				}
 			}
 
 			//--Reload Squid
-			_, _ = RunString(OwlRunOrder)
+			_, _ = RunString("/etc/init.d/squid reload")
 			fmt.Println("Scheduled task executed, user quota has been reset ")
 			//--Restart order
 			addJobs(ctn, ctn.Hour(), ctn.Minute(), ctn.Second())

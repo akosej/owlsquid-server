@@ -39,7 +39,7 @@ func cmdFromStrings(cs []string) *exec.Cmd {
 	return exec.Command(cs[0], cs[1:]...)
 }
 
-// Pipe stdout of each command into stdin of next
+// AssemblePipes Pipe stdout of each command into stdin of next
 func AssemblePipes(cmds []*exec.Cmd, stdin io.Reader, stdout io.Writer) []*exec.Cmd {
 	cmds[0].Stdin = stdin
 	cmds[0].Stderr = stdout
@@ -56,7 +56,7 @@ func AssemblePipes(cmds []*exec.Cmd, stdin io.Reader, stdout io.Writer) []*exec.
 	return cmds
 }
 
-// Run series of piped commands
+// RunCmds Run series of piped commands
 func RunCmds(cmds []*exec.Cmd) error {
 	// start processes in descending order
 	for i := len(cmds) - 1; i > 0; i-- {
@@ -75,4 +75,10 @@ func RunCmds(cmds []*exec.Cmd) error {
 		}
 	}
 	return nil
+}
+
+func Run(arg string) {
+	cmdArgs := strings.Fields(arg)
+	run := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+	_ = run.Run()
 }
