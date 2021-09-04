@@ -38,7 +38,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 			accumulated := used + bytes
 			if quota > used && quota >= accumulated {
 				if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
-					rdb.HSet(CTX, userLog, "used", bytes)
+					rdb.HSet(CTX, userLog, "used", accumulated)
 					rdb.HSet(CTX, userLog, "update", dateJoin)
 					rdb.HSet(CTX, userLog, "last_url", urlLog)
 					rdb.HSet(CTX, userLog, "last_size", bytes)

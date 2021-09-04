@@ -50,7 +50,7 @@ func main() {
 		extractDateData := strings.Split(segment[0], ".")
 		secondOfDifferences := system.SubtractDates(extractDateData[0])
 		//-- If the log entry was executed in less than 10 seconds
-		if secondOfDifferences < 10 {
+		if secondOfDifferences > 10 {
 			//--If it contains an @ it means that there is a user
 			if strings.Contains(segment[7], "@") {
 				//--Check the connection type from the connectType list

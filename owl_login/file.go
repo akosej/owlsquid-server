@@ -45,7 +45,7 @@ func AppendStrFile(path, text string) error {
 }
 
 func Config(data string) string {
-	lines, err := File2lines("./config.owl")
+	lines, err := File2lines("/etc/squid/config.owl")
 	value := ""
 	if err != nil {
 		fmt.Println("The configuration file could not be found")

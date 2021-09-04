@@ -1,0 +1,20 @@
+
+  *********   ***         ***   ***
+  *********   ***         ***   ***
+  ***   ***   ***   ***   ***   ***
+  ***   ***   ***   ***   ***   ***
+  ***   ***   ***   ***   ***   ***
+  *********   ***************   *********
+  *********   ***************   *********
+--OWL CLI   --
+--Created by Edgar Javier akosej9208@gmail.com  --
+--Created by Manuel Cabrera mc@infomed.sld.cu   --
+---------------------------------------------------------------------------
+#--Ipaddress server (REDIS )
+ip.db=127.0.0.1
+
+#--Password
+pass.db=test
+
+#--Port server redis:6379
+port.db=6379
