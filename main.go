@@ -25,21 +25,6 @@ func main() {
 	go func() {
 		system.RunJobsRestartCuota()
 	}()
-	//-------------- GET ACTIVES REQUEST
-	//go func() {
-	//	for {
-	//		_, _ = system.RunString("killall tcpkill 2> /dev/null")
-	//		//squidclient mgr:active_requests | egrep -E '^Connection: 0x*' -A
-	//		system.Run(system.OwlRunScript)
-	//		time.Sleep(5 * time.Second)
-	//	}
-	//}()
-	////-- Watch file
-	//go func() {
-	//	for {
-	//		system.WatchFile(system.OwlActivesRequest)
-	//	}
-	//}()
 	//-------Inject log reading job
 	go func() {
 		for {

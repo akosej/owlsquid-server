@@ -14,8 +14,7 @@ var (
 	OwlRestart        = Config("jobs.restart")
 	OwlPortSquid      = Config("squid.port")
 	OwlPortSquidSSL   = Config("squid.portssl")
-	OwlRunScript      = Config("path.RunScript")
-	OwlActivesRequest = Config("path.ActivesRequest")
+
 
 	// Connects -----JOBS
 	Connects     []string

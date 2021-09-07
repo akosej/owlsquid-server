@@ -12,8 +12,6 @@
 ---------------------------------------------------------------------------
 #-- Path necessary files
 path.AccessLog=./access.log
-path.RunScript=./run.sh
-path.ActivesRequest=./OwlActivesRequest
 ---------------------------------------------------------------------------
 #--path where the logs will be saved
 folder.salve_logs=./salva_logs
