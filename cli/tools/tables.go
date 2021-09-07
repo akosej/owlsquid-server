@@ -18,6 +18,9 @@ func PrintCommandList() {
 	d = append(d, []string{pterm.Gray("4"), pterm.LightGreen("user ") + pterm.LightMagenta("newquota"), "Assign new quota to a user"})
 	d = append(d, []string{pterm.Gray("5"), pterm.LightGreen("user ") + pterm.LightYellow("reset"), "Reset quota to a user"})
 	d = append(d, []string{pterm.Gray("6"), pterm.LightGreen("user ") + pterm.LightRed("blocked"), "Block a user"})
+	d = append(d, []string{pterm.Gray("7"), pterm.LightMagenta("all ") + pterm.LightYellow("reset"), "Reset the quota of all users"})
+	d = append(d, []string{pterm.Gray("8"), pterm.LightMagenta("all ") + pterm.LightBlue("setquota"), "Assign default quota to all users "})
+	d = append(d, []string{pterm.Gray("8"), pterm.LightMagenta("all ") + pterm.LightRed("blocked"), "Block all users "})
 	d = append(d, []string{pterm.Gray("9"), pterm.LightYellow("clear"), "Clear terminal owl "})
 	d = append(d, []string{pterm.Gray("10"), pterm.LightRed("exit"), "Exit OWL"})
 

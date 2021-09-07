@@ -6,33 +6,33 @@
   ***   ***   ***   ***   ***   ***
   *********   ***************   *********
   *********   ***************   *********
---OWL quota control system configuration file   --
---Created by Edgar Javier akosej9208@gmail.com  --
---Created by Manuel Cabrera mc@infomed.sld.cu   --
+-- OWL quota control system configuration file   --
+-- Created by Edgar Javier akosej9208@gmail.com  --
+-- Created by Manuel Cabrera mc@infomed.sld.cu   --
 ---------------------------------------------------------------------------
-#-- Access.log
+#-- Path necessary files
 path.AccessLog=./access.log
+path.RunScript=./run.sh
+path.ActivesRequest=./OwlActivesRequest
+---------------------------------------------------------------------------
+#--path where the logs will be saved
+folder.salve_logs=./salva_logs
+---------------------------------------------------------------------------
 #-- Default quota for users 50 mb 1mb=1048576 Bytes
 default.quota=52428800
-
-#-- Interface server
+---------------------------------------------------------------------------
+#-- Exposed server interface to clients
 interface.server=eth0
-
-#--Folder salva logs
-folder.salva_logs=./salva_logs
-#------------------------------------------
-#--Ipaddress server (REDIS | MYSQL)
-ip.db=127.0.0.1
-
-#--Password
-pass.db=test
-
-#--Port server redis:6379
-port.db=6379
-
-#------------------------------------------
+#-- Exposed squid port
 squid.port=3128
-
-#-------Hours in which the system will restart the quota and rotate the logs  ---------------
+#-- Exposed squid port ssl
+squid.port=3129
+#--Hours in which the system will restart the quota and rotate the logs
 jobs.restart=08:00:00 10:00:00 11:00:00 11:30:00 12:00:00 13:00:00 14:00:00 15:00:00 16:00:00
-
+---------------------------------------------------------------------------
+#--Redis server Ipaddress
+redis.ip=127.0.0.1
+#--Redis server Password
+redis.pass=test
+#--Redis server Port
+redis.port=6379

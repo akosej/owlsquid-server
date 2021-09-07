@@ -14,6 +14,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 	}
 	if user.Bloquear == true {
 		_, _ = RunString("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port " + OwlPortSquid + " > /dev/null 2>&1 &")
+		_, _ = RunString("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port " + OwlPortSquidSSL + " > /dev/null 2>&1 &")
 		fmt.Println("Kill request: " + urlLog + "  User: " + userLog + " from ip:" + ipRemote)
 	} else {
 		if user.Email == "" {

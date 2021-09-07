@@ -3,23 +3,27 @@ package system
 import (
 	"fmt"
 	"github.com/araddon/dateparse"
+	"log"
 	"os"
+	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 )
 
+func System(cmd string, arg ...string) {
+	out, err := exec.Command(cmd, arg...).Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(out))
+}
 func CheckFiles() {
 	_, err := File2lines("./config.owl")
 	if err != nil {
 		AddConfigDefault()
 		os.Exit(0)
-	}
-	//--ACLs and Logs File
-	_, err1 := os.Stat(OwlFolderAcls)
-	if os.IsNotExist(err1) {
-		Run("mkdir " + OwlFolderAcls)
 	}
 	_, err2 := os.Stat(OwlFolderLogs)
 	if os.IsNotExist(err2) {

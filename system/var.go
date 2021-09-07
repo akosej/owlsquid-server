@@ -5,15 +5,17 @@ import "time"
 const IntervalPeriod = 24 * time.Hour
 
 var (
-	RedisServer     = Config("ip.db") + ":" + Config("port.db")
-	RedisServerPass = Config("pass.db")
-	OwlFolderAcls   = Config("folder.owl_acls")
-	OwlFolderLogs   = Config("folder.salva_logs")
-	OwlInterface    = Config("interface.server")
-	OwlQuotaDefault = Config("default.quota")
-	OwlAccesslog    = Config("path.AccessLog")
-	OwlRestart      = Config("jobs.restart")
-	OwlPortSquid    = Config("squid.port")
+	RedisServer       = Config("redis.ip") + ":" + Config("redis.port")
+	RedisServerPass   = Config("redis.pass")
+	OwlFolderLogs     = Config("folder.salve_logs")
+	OwlInterface      = Config("interface.server")
+	OwlQuotaDefault   = Config("default.quota")
+	OwlAccesslog      = Config("path.AccessLog")
+	OwlRestart        = Config("jobs.restart")
+	OwlPortSquid      = Config("squid.port")
+	OwlPortSquidSSL   = Config("squid.portssl")
+	OwlRunScript      = Config("path.RunScript")
+	OwlActivesRequest = Config("path.ActivesRequest")
 
 	// Connects -----JOBS
 	Connects     []string

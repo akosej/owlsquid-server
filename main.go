@@ -25,11 +25,26 @@ func main() {
 	go func() {
 		system.RunJobsRestartCuota()
 	}()
+	//-------------- GET ACTIVES REQUEST
+	//go func() {
+	//	for {
+	//		_, _ = system.RunString("killall tcpkill 2> /dev/null")
+	//		//squidclient mgr:active_requests | egrep -E '^Connection: 0x*' -A
+	//		system.Run(system.OwlRunScript)
+	//		time.Sleep(5 * time.Second)
+	//	}
+	//}()
+	////-- Watch file
+	//go func() {
+	//	for {
+	//		system.WatchFile(system.OwlActivesRequest)
+	//	}
+	//}()
 	//-------Inject log reading job
 	go func() {
 		for {
 			select {
-			//---Write to owl_tmp all access_request
+			//---Write to OwlActivesRequest all access_request
 			case textRequestUser := <-system.JobCheckUser:
 				orderJob := strings.Split(textRequestUser, "---")
 				bytes, _ := strconv.ParseFloat(orderJob[1], 10)
@@ -50,7 +65,7 @@ func main() {
 		extractDateData := strings.Split(segment[0], ".")
 		secondOfDifferences := system.SubtractDates(extractDateData[0])
 		//-- If the log entry was executed in less than 10 seconds
-		if secondOfDifferences > 10 {
+		if secondOfDifferences < 10 {
 			//--If it contains an @ it means that there is a user
 			if strings.Contains(segment[7], "@") {
 				//--Check the connection type from the connectType list

@@ -19,7 +19,7 @@ func main() {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print(pterm.Cyan("Command: "))
-		command, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
+		command, _ := reader.ReadString('\n')
 		cleanCommand := strings.TrimRight(command, "\r\n")
 		cutCommand := strings.Split(cleanCommand, " ")
 		switch arg := cutCommand[0]; arg {
@@ -90,11 +90,44 @@ func main() {
 			default:
 				tools.PrintCommandList()
 			}
+		case "all":
+			if len(cutCommand) < 2 {
+				tools.PrintCommandList()
+				continue
+			}
+			switch arg := cutCommand[1]; arg {
+			case "reset":
+				result := system.OptAllUserStoredRedis("reset", "")
+				if result {
+					pterm.FgCyan.Println("Quota has been successfully reset")
+				} else {
+					pterm.FgRed.Println("An error has occurred")
+				}
+			case "setquota":
+				fmt.Print(pterm.Cyan("Specify the new quota in MB: "))
+				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
+				cleanCommandU := strings.TrimRight(commandU, "\r\n")
+				cutCommandU := strings.Split(cleanCommandU, " ")
+				result := system.OptAllUserStoredRedis("newquota", cutCommandU[0])
+				if result {
+					pterm.FgCyan.Println("User quota has been changed successfully ")
+				} else {
+					pterm.FgRed.Println("An error has occurred")
+				}
+			case "blocked":
+				result := system.OptAllUserStoredRedis("blocked", "")
+				if result {
+					pterm.FgCyan.Println("All users have been blocked")
+				} else {
+					pterm.FgRed.Println("An error has occurred")
+				}
+			default:
+				tools.PrintCommandList()
+			}
 		case "clear":
 			tools.Clear()
 			tools.IntroScreen()
-		case "help":
-			tools.PrintCommandList()
+
 		case "exit":
 			pterm.FgCyan.Println("See you soon!!!")
 			time.Sleep(2 * time.Second)

@@ -1,7 +1,6 @@
 package main
 
 var (
-	RedisServer     = Config("ip.db") + ":" + Config("port.db")
-	RedisServerPass = Config("pass.db")
-	AllUser         []string
+	RedisServer     = Config("redis.ip") + ":" + Config("redis.port")
+	RedisServerPass = Config("redis.pass")
 )
