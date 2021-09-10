@@ -9,6 +9,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/akosej9208/owlsquid/system"
 	"github.com/hpcloud/tail"
 	"sort"
@@ -24,6 +25,13 @@ func main() {
 	//-------JOBS RESTARTS SYSTEM
 	go func() {
 		system.RunJobsRestartCuota()
+	}()
+
+	go func() {
+		for {
+			fmt.Println("Kill all users blocked")
+			system.KillUsersBlocked()
+		}
 	}()
 	//-------Inject log reading job
 	go func() {

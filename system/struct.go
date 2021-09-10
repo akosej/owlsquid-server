@@ -25,6 +25,7 @@ type NavigationUsersRedis struct {
 	Update    string  `json:"update" redis:"update"`
 	Last_size float64 `json:"last_size" redis:"ast_size"`
 	Last_url  string  `json:"last_url" redis:"last_url"`
+	IpRemote  string  `json:"ipremote" redis:"ipremote"`
 	Activa    bool    `json:"activa" redis:"activa"`
 	Ilimitada bool    `json:"ilimitada" redis:"ilimitada"`
 	Bloquear  bool    `json:"bloquear" redis:"bloquear"`
