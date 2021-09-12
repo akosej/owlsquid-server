@@ -38,15 +38,47 @@ func GetAllUserStoredRedis(opt string) []Model {
 		if userR.Email != "" {
 			if opt == "actives" {
 				if userR.Bloquear == false {
-					users = append(users, Model{Email: userR.Email, Quota: userR.Quota, Used: userR.Used, Update: userR.Update, Bloquear: userR.Bloquear})
+					users = append(users, Model{
+						Email:     userR.Email,
+						Quota:     userR.Quota,
+						Used:      userR.Used,
+						Update:    userR.Update,
+						Last_size: userR.Last_size,
+						Last_url:  userR.Last_url,
+						IpRemote:  userR.IpRemote,
+						Activa:    userR.Activa,
+						Ilimitada: userR.Ilimitada,
+						Bloquear:  userR.Bloquear,
+					})
 				}
 			} else if opt == "blocked" {
 				if userR.Bloquear == true {
-					users = append(users, Model{Email: userR.Email, Quota: userR.Quota, Used: userR.Used, Update: userR.Update, Bloquear: userR.Bloquear})
+					users = append(users, Model{
+						Email:     userR.Email,
+						Quota:     userR.Quota,
+						Used:      userR.Used,
+						Update:    userR.Update,
+						Last_size: userR.Last_size,
+						Last_url:  userR.Last_url,
+						IpRemote:  userR.IpRemote,
+						Activa:    userR.Activa,
+						Ilimitada: userR.Ilimitada,
+						Bloquear:  userR.Bloquear,
+					})
 				}
 			} else {
-
-				users = append(users, Model{Email: userR.Email, Quota: userR.Quota, Used: userR.Used, Update: userR.Update, Bloquear: userR.Bloquear})
+				users = append(users, Model{
+					Email:     userR.Email,
+					Quota:     userR.Quota,
+					Used:      userR.Used,
+					Update:    userR.Update,
+					Last_size: userR.Last_size,
+					Last_url:  userR.Last_url,
+					IpRemote:  userR.IpRemote,
+					Activa:    userR.Activa,
+					Ilimitada: userR.Ilimitada,
+					Bloquear:  userR.Bloquear,
+				})
 			}
 		}
 
@@ -63,7 +95,18 @@ func GetUserStoredRedis(user string) []Model {
 	if err := RDB.HGetAll(CTX, user+"@"+EntityDomain).Scan(&userR); err != nil {
 		fmt.Println(err)
 	}
-	users = append(users, Model{Email: userR.Email, Quota: userR.Quota, Used: userR.Used, Update: userR.Update, Bloquear: userR.Bloquear})
+	users = append(users, Model{
+		Email:     userR.Email,
+		Quota:     userR.Quota,
+		Used:      userR.Used,
+		Update:    userR.Update,
+		Last_size: userR.Last_size,
+		Last_url:  userR.Last_url,
+		IpRemote:  userR.IpRemote,
+		Activa:    userR.Activa,
+		Ilimitada: userR.Ilimitada,
+		Bloquear:  userR.Bloquear,
+	})
 	return users
 }
 
@@ -82,8 +125,10 @@ func OptUserStoredRedis(user string, opt string, value string) bool {
 			} else if opt == "newquota" {
 				quotaMB, _ := strconv.Atoi(value)
 				rdb.HSet(CTX, user+"@"+EntityDomain, "quota", quotaMB*1024*1024)
+			} else if opt == "unblocked" {
+				rdb.HSet(CTX, user+"@"+EntityDomain, "activa", 1)
+				rdb.HSet(CTX, user+"@"+EntityDomain, "bloquear", 0)
 			} else {
-				rdb.HSet(CTX, user+"@"+EntityDomain, "activa", 0)
 				rdb.HSet(CTX, user+"@"+EntityDomain, "bloquear", 1)
 			}
 			return nil
@@ -114,8 +159,10 @@ func OptAllUserStoredRedis(opt string, value string) bool {
 				} else if opt == "newquota" {
 					quotaMB, _ := strconv.Atoi(value)
 					rdb.HSet(CTX, userR.Email, "quota", quotaMB*1024*1024)
+				} else if opt == "unblocked" {
+					rdb.HSet(CTX, userR.Email, "activa", 1)
+					rdb.HSet(CTX, userR.Email, "bloquear", 0)
 				} else {
-					rdb.HSet(CTX, userR.Email, "activa", 0)
 					rdb.HSet(CTX, userR.Email, "bloquear", 1)
 				}
 				return nil

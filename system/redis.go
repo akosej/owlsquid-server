@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func AllKeyRedis() {
+func allKeyRedis() {
 	AllUser = nil
 	var cursor uint64
 	for {
@@ -24,9 +24,9 @@ func AllKeyRedis() {
 	}
 }
 
-// GetAllUserStoredRedis --Get all users stored in redis
+// getAllUserStoredRedisBocked --Get all users stored in redis
 func getAllUserStoredRedisBocked() []NavigationUsersRedis {
-	AllKeyRedis()
+	allKeyRedis()
 	//--------------
 	var users []NavigationUsersRedis
 	for _, user := range AllUser {
@@ -34,24 +34,21 @@ func getAllUserStoredRedisBocked() []NavigationUsersRedis {
 		if err := RDB.HGetAll(CTX, user).Scan(&userR); err != nil {
 			fmt.Println(err)
 		}
-		if userR.Email != "" {
-			if userR.Bloquear {
-				if strings.Contains(userR.IpRemote, ":") == false {
-					users = append(users,
-						NavigationUsersRedis{
-							Email:     userR.Email,
-							Quota:     userR.Quota,
-							Used:      userR.Used,
-							Update:    userR.Update,
-							Last_size: userR.Last_size,
-							Last_url:  userR.Last_url,
-							IpRemote:  userR.IpRemote,
-							Activa:    userR.Activa,
-							Ilimitada: userR.Ilimitada,
-							Bloquear:  userR.Bloquear,
-						})
-				}
-
+		if userR.Email != "" && userR.Activa && userR.Bloquear {
+			if strings.Contains(userR.IpRemote, ":") == false {
+				users = append(users,
+					NavigationUsersRedis{
+						Email:     userR.Email,
+						Quota:     userR.Quota,
+						Used:      userR.Used,
+						Update:    userR.Update,
+						Last_size: userR.Last_size,
+						Last_url:  userR.Last_url,
+						IpRemote:  userR.IpRemote,
+						Activa:    userR.Activa,
+						Ilimitada: userR.Ilimitada,
+						Bloquear:  userR.Bloquear,
+					})
 			}
 		}
 

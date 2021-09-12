@@ -10,12 +10,22 @@ import (
 
 func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ipRemote string) (bool, string) {
 	var user NavigationUsersRedis
+	IpRemote := ipRemote
 	if err := RDB.HGetAll(CTX, userLog).Scan(&user); err != nil {
 		fmt.Println(err)
 	}
+	if strings.Contains(ipRemote, ":") == true {
+		IpRemote = user.IpRemote
+	}
 	if user.Bloquear == true {
-		Run("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port " + OwlPortSquid + " > /dev/null 2>&1 &")
-		Run("tcpkill -i " + OwlInterface + " -9 host " + ipRemote + " and port " + OwlPortSquidSSL + " > /dev/null 2>&1 &")
+		Run("tcpkill -i " + OwlInterface + " -9 host " + IpRemote + " and port " + OwlPortSquid + " > /dev/null 2>&1 &")
+		Run("tcpkill -i " + OwlInterface + " -9 host " + IpRemote + " and port " + OwlPortSquidSSL + " > /dev/null 2>&1 &")
+		if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
+			rdb.HSet(CTX, user.Email, "activa", 0)
+			return nil
+		}); err != nil {
+			fmt.Println(err)
+		}
 		fmt.Println("Kill request: " + urlLog + "  User: " + userLog + " from ip:" + ipRemote)
 	} else {
 		if user.Email == "" {
@@ -27,9 +37,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 				rdb.HSet(CTX, userLog, "update", dateJoin)
 				rdb.HSet(CTX, userLog, "last_url", urlLog)
 				rdb.HSet(CTX, userLog, "last_size", bytes)
-				if strings.Contains(ipRemote, ":") == false {
-					rdb.HSet(CTX, userLog, "ipremote", ipRemote)
-				}
+				rdb.HSet(CTX, userLog, "ipremote", IpRemote)
 				rdb.HSet(CTX, userLog, "activa", 1)
 				rdb.HSet(CTX, userLog, "ilimitada", 0)
 				rdb.HSet(CTX, userLog, "bloquear", 0)
@@ -47,9 +55,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 					rdb.HSet(CTX, userLog, "update", dateJoin)
 					rdb.HSet(CTX, userLog, "last_url", urlLog)
 					rdb.HSet(CTX, userLog, "last_size", bytes)
-					if strings.Contains(ipRemote, ":") == false {
-						rdb.HSet(CTX, userLog, "ipremote", ipRemote)
-					}
+					rdb.HSet(CTX, userLog, "ipremote", IpRemote)
 					rdb.HSet(CTX, userLog, "activa", 1)
 					return nil
 				}); err != nil {
@@ -62,10 +68,7 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 				accumulated := used + bytes
 				if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
 					rdb.HSet(CTX, userLog, "used", accumulated)
-					if strings.Contains(ipRemote, ":") == false {
-						rdb.HSet(CTX, userLog, "ipremote", ipRemote)
-					}
-					rdb.HSet(CTX, userLog, "activa", 0)
+					rdb.HSet(CTX, userLog, "ipremote", IpRemote)
 					rdb.HSet(CTX, userLog, "bloquear", 1)
 					return nil
 				}); err != nil {
@@ -81,11 +84,20 @@ func ActionRun(userLog string, bytes float64, dateJoin string, urlLog string, ip
 
 func KillUsersBlocked() {
 	users := getAllUserStoredRedisBocked()
-	//fmt.Println(len(users))
+	fmt.Println(len(users))
 	for _, user := range users {
 		Run("tcpkill -i " + OwlInterface + " -9 host " + user.IpRemote + " and port " + OwlPortSquid + " > /dev/null 2>&1 &")
 		Run("tcpkill -i " + OwlInterface + " -9 host " + user.IpRemote + " and port " + OwlPortSquidSSL + " > /dev/null 2>&1 &")
-		fmt.Println("Kill " + user.IpRemote)
+		if err := RDB.HGetAll(CTX, user.Email).Scan(&user); err != nil {
+			fmt.Println(err)
+		}
+		if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
+			rdb.HSet(CTX, user.Email, "activa", 0)
+			return nil
+		}); err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("Kill " + user.Email + " by ipaddress:" + user.IpRemote)
 	}
 	time.Sleep(10 * time.Second)
 }

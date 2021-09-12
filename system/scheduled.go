@@ -67,7 +67,7 @@ func RunJobsRestartCuota() {
 			cutName2 := strings.Split(cutName[1], ".")
 			_, _ = copyFile(OwlAccesslog, OwlFolderLogs+"/access_"+cutName[0]+"_"+cutName2[0]+".log")
 			_, _ = RunString("echo '' >" + OwlAccesslog)
-			AllKeyRedis()
+			allKeyRedis()
 			for _, user := range AllUser {
 				if _, err := RDB.Pipelined(CTX, func(rdb redis.Pipeliner) error {
 					rdb.HSet(CTX, user, "used", 0)

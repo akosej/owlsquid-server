@@ -1,34 +1,77 @@
 package main
 
 import (
-	"bufio"
 	"cli/system"
 	"cli/tools"
-	"fmt"
+	"github.com/chzyer/readline"
 	"github.com/pterm/pterm"
+	"io"
+	"log"
 	"os"
 	"strings"
 	"time"
 )
+
+// completer defines which commands the user can use
+var completer = readline.NewPrefixCompleter()
+
+// categories holding the initial default categories. The user can  add categories.
+var listArg = []string{"all", "actives", "blocked"}
+var l *readline.Instance
 
 func main() {
 	system.VerifyConfiguration()
 	tools.Clear()
 	system.ConnectServerRedis()
 	tools.IntroScreen()
+	// Initialize config
+	config := readline.Config{
+		Prompt:            "\033[31mcommand »\033[0m ",
+		AutoComplete:      completer,
+		HistoryFile:       system.FileHistory,
+		HistoryLimit:      20,
+		HistorySearchFold: true,
+		InterruptPrompt:   "^C",
+		EOFPrompt:         "exit",
+	}
+
+	var err error
+	// Create instance
+	l, err = readline.NewEx(&config)
+	if err != nil {
+		panic(err)
+	}
+	defer l.Close()
+
+	// Initial initialization of the completer
+	updateCompleter()
+
+	log.SetOutput(l.Stderr())
+
+	// This loop watches for user input and process it
 	for {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print(pterm.Cyan("Command: "))
-		command, _ := reader.ReadString('\n')
-		cleanCommand := strings.TrimRight(command, "\r\n")
-		cutCommand := strings.Split(cleanCommand, " ")
-		switch arg := cutCommand[0]; arg {
+		line, err := l.Readline()
+
+		if err == readline.ErrInterrupt {
+			if len(line) == 0 {
+				break
+			} else {
+				continue
+			}
+		} else if err == io.EOF {
+			break
+		}
+
+		line = strings.TrimSpace(line)
+		// Checking which command the user typed
+		args := strings.Split(line, " ")
+		switch arg := args[0]; arg {
 		case "list":
-			if len(cutCommand) < 2 {
+			if len(args) < 2 {
 				tools.PrintCommandList()
 				continue
 			}
-			switch arg := cutCommand[1]; arg {
+			switch arg := args[1]; arg {
 			case "all":
 				tools.PrintUserTable(system.GetAllUserStoredRedis("all"), "List of users saved by owl", true)
 			case "actives":
@@ -38,88 +81,130 @@ func main() {
 			default:
 				tools.PrintCommandList()
 			}
-		case "user":
-			if len(cutCommand) < 2 {
+		case "status":
+			if len(args) < 2 {
 				tools.PrintCommandList()
 				continue
 			}
-			fmt.Print(pterm.Cyan("Specify the user : "))
-			switch arg := cutCommand[1]; arg {
-			case "status":
-				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandU := strings.TrimRight(commandU, "\r\n")
-				cutCommandU := strings.Split(cleanCommandU, " ")
-				tools.PrintUserTable(system.GetUserStoredRedis(cutCommandU[0]), "User information", false)
-			case "newquota":
-				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandU := strings.TrimRight(commandU, "\r\n")
-				cutCommandU := strings.Split(cleanCommandU, " ")
-				fmt.Print(pterm.Cyan("Specify the new quota in MB: "))
-				commandC, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandC := strings.TrimRight(commandC, "\r\n")
-				cutCommandC := strings.Split(cleanCommandC, " ")
-				result := system.OptUserStoredRedis(cutCommandU[0], "newquota", cutCommandC[0])
-				if result {
-					pterm.FgCyan.Println("User quota has been changed successfully ")
-					tools.PrintUserTable(system.GetUserStoredRedis(cutCommandU[0]), "User information", false)
-				} else {
-					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
+			switch arg := args[1]; arg {
+			case "user":
+				if len(args) < 3 {
+					tools.PrintCommandList()
+					continue
 				}
-			case "reset":
-				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandU := strings.TrimRight(commandU, "\r\n")
-				cutCommandU := strings.Split(cleanCommandU, " ")
-				result := system.OptUserStoredRedis(cutCommandU[0], "reset", "")
-				if result {
-					pterm.FgCyan.Println("The user's browsing quota has been reset")
-					tools.PrintUserTable(system.GetUserStoredRedis(cutCommandU[0]), "User information", false)
-				} else {
-					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
-				}
-			case "blocked":
-				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandU := strings.TrimRight(commandU, "\r\n")
-				cutCommandU := strings.Split(cleanCommandU, " ")
-				result := system.OptUserStoredRedis(cutCommandU[0], "blocked", "")
-				if result {
-					pterm.FgCyan.Println("User has been successfully blocked ")
-					tools.PrintUserTable(system.GetUserStoredRedis(cutCommandU[0]), "User information", false)
-				} else {
-					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
-				}
+				tools.PrintUserTable(system.GetUserStoredRedis(args[2]), "User information", false)
 			default:
 				tools.PrintCommandList()
 			}
-		case "all":
-			if len(cutCommand) < 2 {
+		case "reset":
+			if len(args) < 2 {
 				tools.PrintCommandList()
 				continue
 			}
-			switch arg := cutCommand[1]; arg {
-			case "reset":
+			switch arg := args[1]; arg {
+			case "all":
 				result := system.OptAllUserStoredRedis("reset", "")
 				if result {
 					pterm.FgCyan.Println("Quota has been successfully reset")
 				} else {
 					pterm.FgRed.Println("An error has occurred")
 				}
-			case "setquota":
-				fmt.Print(pterm.Cyan("Specify the new quota in MB: "))
-				commandU, _ := reader.ReadString('\n') // Leer hasta el separador de salto de línea
-				cleanCommandU := strings.TrimRight(commandU, "\r\n")
-				cutCommandU := strings.Split(cleanCommandU, " ")
-				result := system.OptAllUserStoredRedis("newquota", cutCommandU[0])
-				if result {
-					pterm.FgCyan.Println("User quota has been changed successfully ")
-				} else {
-					pterm.FgRed.Println("An error has occurred")
+			case "user":
+				if len(args) < 3 {
+					tools.PrintCommandList()
+					continue
 				}
-			case "blocked":
+				result := system.OptUserStoredRedis(args[2], "reset", "")
+				if result {
+					pterm.FgCyan.Println("The user's browsing quota has been reset")
+					tools.PrintUserTable(system.GetUserStoredRedis(args[2]), "User information", false)
+				} else {
+					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
+				}
+			default:
+				tools.PrintCommandList()
+			}
+		case "blocked":
+			if len(args) < 2 {
+				tools.PrintCommandList()
+				continue
+			}
+			switch arg := args[1]; arg {
+			case "all":
 				result := system.OptAllUserStoredRedis("blocked", "")
 				if result {
 					pterm.FgCyan.Println("All users have been blocked")
 				} else {
 					pterm.FgRed.Println("An error has occurred")
+				}
+			case "user":
+				if len(args) < 3 {
+					tools.PrintCommandList()
+					continue
+				}
+				result := system.OptUserStoredRedis(args[2], "blocked", "")
+				if result {
+					pterm.FgCyan.Println("User has been successfully blocked ")
+					tools.PrintUserTable(system.GetUserStoredRedis(args[2]), "User information", false)
+				} else {
+					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
+				}
+			default:
+				tools.PrintCommandList()
+			}
+		case "unblocked":
+			if len(args) < 2 {
+				tools.PrintCommandList()
+				continue
+			}
+			switch arg := args[1]; arg {
+			case "all":
+				//todo: No funciona
+				result := system.OptAllUserStoredRedis("unblocked", "")
+				if result {
+					pterm.FgCyan.Println("All users have been unblocked")
+				} else {
+					pterm.FgRed.Println("An error has occurred")
+				}
+			case "user":
+				if len(args) < 3 {
+					tools.PrintCommandList()
+					continue
+				}
+				result := system.OptUserStoredRedis(args[2], "unblocked", "")
+				if result {
+					pterm.FgCyan.Println("User has been successfully unblocked ")
+					tools.PrintUserTable(system.GetUserStoredRedis(args[2]), "User information", false)
+				} else {
+					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
+				}
+			default:
+				tools.PrintCommandList()
+			}
+		case "setquota":
+			if len(args) < 2 {
+				tools.PrintCommandList()
+				continue
+			}
+			switch arg := args[1]; arg {
+			case "all":
+				result := system.OptAllUserStoredRedis("newquota", args[2])
+				if result {
+					pterm.FgCyan.Println("User quota has been changed successfully ")
+				} else {
+					pterm.FgRed.Println("An error has occurred")
+				}
+			case "user":
+				if len(args) < 4 {
+					tools.PrintCommandList()
+					continue
+				}
+				result := system.OptUserStoredRedis(args[2], "newquota", args[3])
+				if result {
+					pterm.FgCyan.Println("User quota has been changed successfully ")
+					tools.PrintUserTable(system.GetUserStoredRedis(args[2]), "User information", false)
+				} else {
+					pterm.FgRed.Println("An error has occurred, verify that the user is correctly typed, remember that you should not put @domain")
 				}
 			default:
 				tools.PrintCommandList()
@@ -127,7 +212,6 @@ func main() {
 		case "clear":
 			tools.Clear()
 			tools.IntroScreen()
-
 		case "exit":
 			pterm.FgCyan.Println("See you soon!!!")
 			time.Sleep(2 * time.Second)
@@ -138,19 +222,51 @@ func main() {
 		}
 	}
 
-	//pseudoApplicaztionHeader()
-	//time.Sleep(second)
-	//installingPseudoList()
-	//time.Sleep(second * 2)
-	//pterm.DefaultSection.WithLevel(2).Println("Program Install Report")
-	//installedProgramsSize()
-	//time.Sleep(second * 4)
-	//pterm.DefaultSection.Println("Tree Printer")
-	//installedTree()
-	//time.Sleep(second * 4)
-	//pterm.DefaultSection.Println("TrueColor Support")
-	//fadeText()
-	//time.Sleep(second)
-	//pterm.DefaultSection.Println("Bullet List Printer")
-	//listPrinter()
+}
+
+// updateCompleter is updates the completer allowing to add new command during runtime. The completer is recreated
+// and the configuration of the instance update.
+func updateCompleter() {
+
+	var itemsList []readline.PrefixCompleterInterface
+	var allUser []readline.PrefixCompleterInterface
+	for _, all := range listArg {
+		itemsList = append(itemsList, readline.PcItem(all))
+	}
+	users := system.GetAllUserStoredRedis("")
+	for _, u := range users {
+		if u.Email != "" {
+			allUser = append(allUser, readline.PcItem(strings.Split(u.Email, "@")[0]))
+		}
+	}
+
+	completer = readline.NewPrefixCompleter(
+		readline.PcItem("list",
+			itemsList...,
+		),
+		readline.PcItem("reset",
+			readline.PcItem("all"),
+			readline.PcItem("user", allUser...),
+		),
+		readline.PcItem("blocked",
+			readline.PcItem("all"),
+			readline.PcItem("user", allUser...),
+		),
+		readline.PcItem("unblocked",
+			readline.PcItem("all"),
+			readline.PcItem("user", allUser...),
+		),
+		readline.PcItem("setquota",
+			readline.PcItem("all"),
+			readline.PcItem("user", allUser...),
+		),
+		readline.PcItem("status",
+			readline.PcItem("user", allUser...),
+		),
+		readline.PcItem("command"),
+		readline.PcItem("clear"),
+		readline.PcItem("exit"),
+	)
+
+	l.Config.AutoComplete = completer
 }

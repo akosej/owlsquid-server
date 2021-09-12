@@ -26,7 +26,7 @@ func main() {
 	go func() {
 		system.RunJobsRestartCuota()
 	}()
-
+	//--------Kill blocked users' connections
 	go func() {
 		for {
 			fmt.Println("Kill all users blocked")
@@ -54,7 +54,7 @@ func main() {
 		//time duration client_address result_code bytes request_method url rfc931 hierarchy_code type
 		// 0        1       2               3       4       5           6       7           8       9
 		segment := strings.Fields(line.Text)
-		//-- extract date data
+		//-- Extract date data
 		extractDateData := strings.Split(segment[0], ".")
 		secondOfDifferences := system.SubtractDates(extractDateData[0])
 		//-- If the log entry was executed in less than 10 seconds

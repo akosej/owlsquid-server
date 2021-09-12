@@ -14,5 +14,6 @@ var (
 	HOME            = os.Getenv("HOME")
 	FolderConfig    = os.Getenv("HOME") + "/.owlcli"
 	FileConfig      = os.Getenv("HOME") + "/.owlcli/config.owl"
+	FileHistory     = os.Getenv("HOME") + "/.owlcli/readline.tmp"
 	AllUser         []string
 )
